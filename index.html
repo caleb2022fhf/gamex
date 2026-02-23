@@ -13,7 +13,6 @@
             height: 100vh;
             margin: 0;
         }
-
         header {
             color: #00ffff;
             font-size: 48px;
@@ -24,7 +23,6 @@
             letter-spacing: 3px;
             text-align: center;
         }
-
         .login-box {
             background: white;
             padding: 30px;
@@ -34,12 +32,10 @@
             text-align: center;
             position: relative;
         }
-
         .input-container {
             position: relative;
             margin-bottom: 10px;
         }
-
         input {
             width: 100%;
             padding: 10px;
@@ -48,7 +44,6 @@
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-
         .toggle-eye {
             position: absolute;
             top: 50%;
@@ -59,36 +54,30 @@
             width: 20px;
             height: 20px;
         }
-
         button, button.login-btn, button.secondary, button.link-btn {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
         }
-
         button.login-btn {
             border: none;
             background: #007bff;
             color: white;
             cursor: pointer;
         }
-
         button.login-btn:hover {
             background: #0056b3;
         }
-
         button.secondary {
             background: #28a745;
             color: white;
             border: none;
             cursor: pointer;
         }
-
         button.secondary:hover {
             background: #1f7a32;
         }
-
         button.link-btn {
             background: none;
             border: none;
@@ -97,23 +86,18 @@
             cursor: pointer;
             padding: 5px 0;
         }
-
         button.link-btn:hover {
             color: #0056b3;
         }
     </style>
 </head>
 <body>
-
-<header>Net Chat</header> <!-- Hano twahinduye -->
-
+<header>Net Chat</header>
 <div class="login-box">
     <h2>Login</h2>
-
     <form id="loginForm">
         <label>Email:</label>
         <input type="text" id="userInput" required>
-
         <div class="input-container">
             <label>PIN:</label>
             <input type="password" id="password" required>
@@ -121,36 +105,28 @@
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5 16.5 9.51 16.5 12 14.49 16.5 12 16.5zm0-7c-1.38 0-2.5 1.12-2.5 2.5S10.62 14.5 12 14.5 14.5 13.38 14.5 12 13.38 9.5 12 9.5z"/>
             </svg>
         </div>
-
         <button type="submit" class="login-btn">Login</button>
     </form>
-
     <!-- Links -->
     <button class="link-btn" onclick="window.location.href='Untitled-16.html'">Forgot Password?</button>
     <button class="link-btn" onclick="window.location.href='interemail.html'">Other Issue</button>
-    <button class="secondary" onclick="window.location.href='Untitled-3.html'">Create account</button>
+    <button class="secondary" onclick="window.location.href='caleb2.html'">Create account</button>
 </div>
-
 <script>
 const loginForm = document.getElementById('loginForm');
-
 loginForm.addEventListener('submit', function(e){
     e.preventDefault();
-
     const userInput = document.getElementById('userInput').value;
     const password = document.getElementById('password').value;
-
     // Reba localStorage ya registered users
     let users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
     let found = users.find(u => u.email === userInput && u.pin === password);
-
     if(found){
         window.location.href = 'Untitled-5.html';
     } else {
         alert("No account found. Please create an account.");
     }
 });
-
 function togglePassword(id, icon) {
     const input = document.getElementById(id);
     if(input.type === 'password') {
@@ -162,6 +138,5 @@ function togglePassword(id, icon) {
     }
 }
 </script>
-
 </body>
 </html>
