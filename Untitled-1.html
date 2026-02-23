@@ -2,49 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Checkers Game</title>
+<title>Dame Game</title>
 
 <style>
 body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    background:#5c3b1e;
-    font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:#5c3b1e;
 }
-
 .board{
-    display:grid;
-    grid-template-columns:repeat(8,70px);
-    grid-template-rows:repeat(8,70px);
-    border:8px solid #caa472;
+  display:grid;
+  grid-template-columns:repeat(8,70px);
 }
-
-.cell{
-    width:70px;
-    height:70px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-.dark{ background:#7a4b27; }
-.light{ background:#e3c39b; }
-
+.cell{width:70px;height:70px;display:flex;justify-content:center;align-items:center;}
+.dark{background:#7a4b27;}
+.light{background:#e3c39b;}
 .piece{
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    cursor:pointer;
+  width:50px;height:50px;border-radius:50%;
+  cursor:pointer;display:flex;justify-content:center;align-items:center;
+  font-weight:bold;font-size:20px;color:red;
 }
-
-.white{ background:white; }
-.black{ background:black; }
-
-.selected{
-    outline:4px solid yellow;
-}
+.white{background:white;}
+.black{background:black;color:white;}
+.selected{outline:4px solid yellow;}
 </style>
 </head>
 
@@ -58,92 +40,131 @@ let selected = null;
 let currentPlayer = "white";
 
 function createBoard(){
-    for(let row=0;row<8;row++){
-        for(let col=0;col<8;col++){
+for(let r=0;r<8;r++){
+for(let c=0;c<8;c++){
 
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
+const cell=document.createElement("div");
+cell.className="cell "+((r+c)%2?"dark":"light");
+cell.dataset.row=r;
+cell.dataset.col=c;
 
-            if((row+col)%2===0){
-                cell.classList.add("light");
-            }else{
-                cell.classList.add("dark");
+if((r+c)%2){
+if(r<3)addPiece(cell,"black");
+if(r>4)addPiece(cell,"white");
+}
 
-                // Add pieces
-                if(row < 3){
-                    addPiece(cell,"black");
-                }
-                if(row > 4){
-                    addPiece(cell,"white");
-                }
-            }
-
-            cell.dataset.row = row;
-            cell.dataset.col = col;
-
-            cell.addEventListener("click", () => movePiece(cell));
-
-            board.appendChild(cell);
-        }
-    }
+cell.onclick=()=>move(cell);
+board.appendChild(cell);
+}}
 }
 
 function addPiece(cell,color){
-    const piece = document.createElement("div");
-    piece.classList.add("piece",color);
-
-    piece.addEventListener("click",(e)=>{
-        if(piece.classList.contains(currentPlayer)){
-            if(selected) selected.classList.remove("selected");
-            selected = piece;
-            piece.classList.add("selected");
-        }
-        e.stopPropagation();
-    });
-
-    cell.appendChild(piece);
+const p=document.createElement("div");
+p.className="piece "+color;
+p.onclick=(e)=>{
+if(p.classList.contains(currentPlayer)){
+clearSelect();
+selected=p;
+p.classList.add("selected");
+}
+e.stopPropagation();
+};
+cell.appendChild(p);
 }
 
-function movePiece(cell){
-    if(selected && cell.classList.contains("dark") && cell.children.length === 0){
-
-        const fromRow = selected.parentElement.dataset.row;
-        const fromCol = selected.parentElement.dataset.col;
-        const toRow = cell.dataset.row;
-        const toCol = cell.dataset.col;
-
-        let dir = currentPlayer === "white" ? -1 : 1;
-
-        // Normal move
-        if(Math.abs(fromCol - toCol) === 1 && (toRow - fromRow) == dir){
-            cell.appendChild(selected);
-            changeTurn();
-        }
-
-        // Capture move
-        if(Math.abs(fromCol - toCol) === 2 && (toRow - fromRow) == dir*2){
-            let middleRow = (parseInt(fromRow)+parseInt(toRow))/2;
-            let middleCol = (parseInt(fromCol)+parseInt(toCol))/2;
-
-            let middleCell = document.querySelector(
-                `[data-row='${middleRow}'][data-col='${middleCol}']`
-            );
-
-            if(middleCell.children.length &&
-               !middleCell.children[0].classList.contains(currentPlayer)){
-
-                middleCell.innerHTML = "";
-                cell.appendChild(selected);
-                changeTurn();
-            }
-        }
-    }
+function clearSelect(){
+if(selected)selected.classList.remove("selected");
 }
 
-function changeTurn(){
-    selected.classList.remove("selected");
-    selected = null;
-    currentPlayer = currentPlayer === "white" ? "black" : "white";
+function isKing(piece){
+return piece.innerHTML==="👑";
+}
+
+function makeKing(piece,row){
+if(piece.classList.contains("white") && row==0)piece.innerHTML="👑";
+if(piece.classList.contains("black") && row==7)piece.innerHTML="👑";
+}
+
+function move(cell){
+if(!selected)return;
+
+let fr=selected.parentElement.dataset.row*1;
+let fc=selected.parentElement.dataset.col*1;
+let tr=cell.dataset.row*1;
+let tc=cell.dataset.col*1;
+
+let dir = selected.classList.contains("white")?-1:1;
+let king=isKing(selected);
+
+if(cell.children.length) return;
+
+// normal move
+if(Math.abs(fc-tc)==1 && ((tr-fr)==dir || king)){
+cell.appendChild(selected);
+makeKing(selected,tr);
+endTurn();
+}
+
+// capture
+if(Math.abs(fc-tc)==2){
+let mr=(fr+tr)/2;
+let mc=(fc+tc)/2;
+let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
+
+if(mid.children.length &&
+!mid.children[0].classList.contains(currentPlayer)){
+
+mid.innerHTML="";
+cell.appendChild(selected);
+makeKing(selected,tr);
+
+if(canCaptureAgain(selected)){
+selected.classList.add("selected");
+}else{
+endTurn();
+}
+}
+}
+}
+
+function canCaptureAgain(piece){
+let r=piece.parentElement.dataset.row*1;
+let c=piece.parentElement.dataset.col*1;
+
+let enemy=currentPlayer=="white"?"black":"white";
+let dirs=[[1,1],[1,-1],[-1,1],[-1,-1]];
+
+for(let d of dirs){
+let mr=r+d[0];
+let mc=c+d[1];
+let tr=r+d[0]*2;
+let tc=c+d[1]*2;
+
+let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
+let target=document.querySelector(`[data-row='${tr}'][data-col='${tc}']`);
+
+if(mid && target && mid.children.length &&
+mid.children[0].classList.contains(enemy) &&
+target.children.length==0){
+return true;
+}
+}
+return false;
+}
+
+function endTurn(){
+clearSelect();
+selected=null;
+currentPlayer=currentPlayer=="white"?"black":"white";
+checkWin();
+}
+
+function checkWin(){
+let whites=document.querySelectorAll(".white").length;
+let blacks=document.querySelectorAll(".black").length;
+
+if(!whites)alert("Black wins!");
+if(!blacks)alert("White wins!");
 }
 
 createBoard();
