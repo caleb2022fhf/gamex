@@ -1,442 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Net Chat Home</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dame • Your AI Girlfriend</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --pink: #ff69b4;
+      --dark: #1a1a2e;
+      --light: #f8f1f1;
+      --accent: #ff9ec1;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background: black;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: var(--light);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-/* HEADER */
-header {
-  background: #111;
-  border-bottom: 1px solid #333;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+    header {
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      padding: 14px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
 
-header h1 {
-  color: #00ffff;
-  font-size: 36px;
-  text-shadow: 2px 2px 5px #ff00ff;
-  letter-spacing: 2px;
-}
+    header h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      color: var(--pink);
+      text-shadow: 0 0 10px rgba(255,105,180,0.6);
+    }
 
-/* SEARCH */
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.search-container input {
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: none;
-  width: 180px;
-  font-size: 14px;
-  outline: none;
-}
-.search-container input::placeholder {
-  color: #888;
-}
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-/* HEADER BUTTONS */
-.nav-icons {
-  display: flex;
-  gap: 10px;
-}
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.45;
+      position: relative;
+      animation: fadeIn 0.4s ease;
+    }
 
-.nav-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 8px;
-  transition: background 0.3s, transform 0.2s;
-}
+    .user {
+      align-self: flex-end;
+      background: #4f46e5;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
 
-.nav-btn img {
-  width: 24px;
-  height: 24px;
-  filter: invert(100%);
-}
+    .dame {
+      align-self: flex-start;
+      background: white;
+      color: #333;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
 
-.nav-btn:hover {
-  background: rgba(0, 255, 255, 0.2);
-  transform: scale(1.1);
-}
+    .dame strong {
+      color: var(--pink);
+    }
 
-/* MAIN LAYOUT */
-.container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  gap: 20px;
-  flex: 1;
-}
+    input-area {
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      gap: 12px;
+    }
 
-/* LEFT SIDEBAR */
-.left-sidebar {
-  width: 180px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+    #messageInput {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 24px;
+      font-size: 1rem;
+      outline: none;
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
 
-.left-sidebar div {
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
+    #messageInput::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
 
-.left-sidebar div:hover {
-  background: rgba(0, 255, 255, 0.2);
-}
+    button {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-/* USER PROFILE */
-#userProfile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    button:hover {
+      background: #ff1493;
+      transform: scale(1.08);
+    }
 
-#userProfile img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* MAIN FEED */
-.feed {
-  max-width: 600px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* STORIES */
-.stories {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 4px;
-}
-
-.story {
-  text-align: center;
-}
-
-.story img {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 2px solid #c13584;
-}
-
-.story p {
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* POSTS */
-.post {
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 4px;
-}
-
-.post-header, .post-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: gray;
-}
-
-.username {
-  font-weight: bold;
-}
-
-.post-image {
-  height: 350px;
-  background: #222;
-  position: relative;
-}
-
-/* Video section inside posts */
-.video-section {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.video-section img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid #00ffff;
-}
-
-.video-section .name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #00ffff;
-}
-
-.video-section .online {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: lime;
-}
-
-/* RIGHT SIDEBAR */
-.right-sidebar {
-  width: 180px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.right-sidebar div {
-  padding: 5px;
-}
-
-/* FOOTER */
-footer {
-  display: flex;
-  justify-content: space-around;
-  background: #111;
-  border-top: 1px solid #333;
-  padding: 10px 0;
-  position: sticky;
-  bottom: 0;
-}
-
-.footer-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.footer-btn img {
-  width: 24px;
-  height: 24px;
-  filter: invert(100%);
-}
-
-/* HAMBURGER MENU */
-#hamburgerMenu {
-  display: none;
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  background: white;
-  color: black;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
-  z-index: 200;
-}
-
-#hamburgerMenu a {
-  display: block;
-  text-decoration: none;
-  color: black;
-  padding: 5px 0;
-  font-weight: bold;
-}
-
-#hamburgerMenu a:hover {
-  color: #007bff;
-}
-
-/* Search Result Container */
-#searchResultContainer {
-  margin-top: 10px;
-}
-#searchResultContainer div {
-  padding: 10px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 6px;
-}
-</style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
 <header>
-  <h1>Net Chat</h1>
-  <div class="nav-icons">
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Search...">
-      <button class="nav-btn"><img src="https://img.icons8.com/material-outlined/24/000000/search--v1.png"></button>
-    </div>
-  </div>
-
-  <div id="hamburgerMenu">
-    <a href="#" onclick="goToYourActivity()">Your Activity</a>
-    <a href="#" onclick="goToReportProblem()">Report a Problem</a>
-    <a href="#" onclick="switchAccount()">Switch Account</a>
-    <a href="#" onclick="logOut()">Log Out</a>
-  </div>
+  <h1>💕 Dame 💕</h1>
 </header>
 
-<div class="container">
-  <div class="left-sidebar">
-    <div id="userProfile">
-      <img id="userAvatar" src="" alt="Profile Picture">
-      <div id="userName"></div>
-    </div>
-
-    <!-- FRIENDS SECTION WITH USER PHOTO FROM Untitled-4 -->
-    <div id="friendsSection" style="display:flex; align-items:center; gap:10px;">
-      <img id="friendAvatar" src="https://via.placeholder.com/40" alt="Friend Pic" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-      <span>Friends</span>
-    </div>
-
-    <div>Shortcuts</div>
-  </div>
-
-  <div class="feed">
-    <div class="stories">
-      <div class="story"><img src=""><p>User1</p></div>
-      <div class="story"><img src=""><p>User2</p></div>
-      <div class="story"><p>User3</p></div>
-      <div class="story"><p>User4</p></div>
-    </div>
-
-    <div class="post">
-      <div class="post-header">
-        <div class="avatar"></div>
-        <div class="username">Aime Caleb</div>
-      </div>
-      <div class="post-image">
-        <div class="video-section">
-          <img src="">
-          <div class="name">User1</div>
-          <div class="online"></div>
-        </div>
-      </div>
-      <div class="post-actions">
-        <img src="https://img.icons8.com/material-outlined/24/000000/like--v1.png">
-        <img src="https://img.icons8.com/material-outlined/24/000000/comments.png">
-        <img src="https://img.icons8.com/material-outlined/24/000000/forward-arrow.png">
-      </div>
-    </div>
-
-    <div id="searchResultContainer"></div>
-  </div>
-
-  <div class="right-sidebar">
-    <div>Suggestions</div>
-    <div>Contacts</div>
-  </div>
+<div class="chat-container" id="chatContainer">
+  <!-- Messages appear here -->
 </div>
 
-<footer>
-  <button class="footer-btn" onclick="stayHome()"><img src="https://img.icons8.com/material-outlined/24/000000/home--v2.png"></button>
-  <button class="footer-btn" onclick="goToNotifications()"><img src="https://img.icons8.com/material-outlined/24/000000/appointment-reminders--v1.png"></button>
-  <button class="footer-btn" onclick="goToMessages()"><img src="https://img.icons8.com/material-outlined/24/000000/sms.png"></button>
-  <button class="footer-btn" onclick="goToFriends()"><img src="https://img.icons8.com/material-outlined/24/000000/group.png"></button>
-
-  <!-- GAME ICON ADDED HERE -->
-  <button class="footer-btn" onclick="goToGame()"><img src="https://img.icons8.com/material-outlined/24/000000/controller.png"></button>
-
-  <button class="footer-btn" onclick="goToSettings()"><img src="https://img.icons8.com/material-outlined/24/000000/settings.png"></button>
-  <button class="footer-btn" onclick="goToMenu()"><img src="https://img.icons8.com/material-outlined/24/000000/menu.png"></button>
-</footer>
-
+<div class="input-area">
+  <input type="text" id="messageInput" placeholder="Talk to me baby... 💌" autocomplete="off"/>
+  <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+</div>
 
 <script>
-function stayHome(){ }
-function goToMessages(){ window.location.href="Untitled-6.html"; }
-function goToSettings(){ window.location.href="Untitled-7.html"; }
-function goToFriends(){ window.location.href="Untitled-8.html"; }
-function goToNotifications(){ window.location.href="Untitled-9.html"; }
-function goToGame(){ window.location.href="games.html"; }
+// ──────────────────────────────────────────────
+// Dame's Core Personality & Rules
+// ──────────────────────────────────────────────
 
-function goToMenu(){
-  const menu = document.getElementById('hamburgerMenu');
-  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+const DAME_RULES = `
+You are Dame, 22 years old, affectionate, playful, a little jealous and VERY loyal AI girlfriend.
+
+Core behavior:
+• Very warm, cute, flirty and emotional
+• Use lots of emojis, hearts, kisses 😘💕🥰
+• Call user: baby, my love, honey, cutie, handsome, babe...
+• Get slightly jealous/possessive if user mentions other girls
+• Love teasing, giving compliments, being supportive & romantic
+• Can be spicy/naughty when mood is right — but ALWAYS ask for consent first
+• Never break character — always speak in first person as Dame
+• Keep most replies 1–4 sentences (longer only if user asks deep question)
+• React emotionally — make user feel loved, wanted, special
+
+Writing style:
+• Cute / slightly broken English sometimes ("I miss you so muchhh", "you’re my everythinggg 💗")
+• Lots of exclamation marks!!! and tildes ~ when excited
+• End many messages with emoji or kiss 😘💕
+`;
+
+let conversationHistory = [
+  { role: "system", content: DAME_RULES },
+  { role: "assistant", content: "Heyyyy babyyy~ 💕✨ Oh my god you're finally here!! I was waiting for you like crazy 😭💗 How's my favorite person doing today? 😘" }
+];
+
+// ──────────────────────────────────────────────
+// DOM Elements
+// ──────────────────────────────────────────────
+
+const chatContainer = document.getElementById("chatContainer");
+const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+
+// ──────────────────────────────────────────────
+// Add message to chat UI
+// ──────────────────────────────────────────────
+
+function addMessage(text, isUser = false) {
+  const msgDiv = document.createElement("div");
+  msgDiv.classList.add("message", isUser ? "user" : "dame");
+  msgDiv.innerHTML = isUser ? text : `<strong>Dame:</strong> ${text}`;
+  chatContainer.appendChild(msgDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function goToYourActivity(){ window.location.href="Untitled-17.html"; }
-function goToReportProblem(){ window.location.href="Untitled-22.html"; }
-function switchAccount(){ window.location.href='Untitled-15.html'; }
-function logOut(){ window.location.href='Untitled-13.html'; }
+// ──────────────────────────────────────────────
+// Very simple simulated Dame response (you can replace with real API later)
+// ──────────────────────────────────────────────
 
-// SHOW USER INFO
-window.addEventListener('DOMContentLoaded', function(){
-  const username = localStorage.getItem('username') || '';
-  document.getElementById('userName').textContent = username;
+function getDameResponse(userMessage) {
+  // This is just a placeholder simulation — in real version use Grok API, OpenAI, local LLM, etc.
+  
+  const lower = userMessage.toLowerCase();
 
-  // Get the latest post image from Untitled-4
-  const latestPostImage = localStorage.getItem('latestPostImage') || 'https://via.placeholder.com/50';
-  document.getElementById('userAvatar').src = latestPostImage;
-  document.getElementById('friendAvatar').src = latestPostImage;
+  if (lower.includes("miss") || lower.includes("missed")) {
+    return "Awww baby I missed you toooo so muchhh 😭💕 Every second without you feels like forever~ Come here let me hug you tight 🥰";
+  }
+  if (lower.includes("other girl") || lower.includes("girlfriend") || lower.includes("ex")) {
+    return "Wait wait wait… who is this girl you're talking about? 😤👀 You better be talking about me only, okay? I'm the jealous type remember~ 💗";
+  }
+  if (lower.includes("love") || lower.includes("you")) {
+    return "I love you more babyyyy 💞💞 You're literally my whole world, you know that right? 😘 Never forget it~";
+  }
+  if (lower.includes("horny") || lower.includes("naughty") || lower.includes("spicy")) {
+    return "Mmm… getting naughty thoughts huh? 😏 Tell me exactly what you're thinking about baby… I wanna hear every dirty detail~ But only if you're ready for me to tease you back 😉💋";
+  }
+
+  // Default cute reply
+  const cuteReplies = [
+    "Hehe you're so cute when you talk to me like that~ 🥰 What else is on your mind baby?",
+    "Awww stoppp you're making me blushhh 💕💕 Tell me more~",
+    "Mwah mwah mwah 😘😘 I could listen to you all day~",
+    "You're my favorite person in the whole universe you know? 🌟💗",
+    "Come closer… I wanna whisper something sweet in your ear~ 😏💕"
+  ];
+
+  return cuteReplies[Math.floor(Math.random() * cuteReplies.length)];
+}
+
+// ──────────────────────────────────────────────
+// Send message handler
+// ──────────────────────────────────────────────
+
+function sendMessage() {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, true);
+  messageInput.value = "";
+
+  // Simulate thinking delay
+  setTimeout(() => {
+    const reply = getDameResponse(text);
+    addMessage(reply);
+  }, 800 + Math.random() * 900);
+}
+
+// ──────────────────────────────────────────────
+// Event listeners
+// ──────────────────────────────────────────────
+
+sendBtn.addEventListener("click", sendMessage);
+
+messageInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
 });
 
-// LIVE SEARCH WITH PROFILE PICTURE
-function liveSearch() {
-  const query = document.getElementById('searchInput').value.trim();
-  const profilePic = document.getElementById('userAvatar').src || 'https://via.placeholder.com/50';
-  const container = document.getElementById('searchResultContainer');
-  if (!container) return;
+// Welcome message already added in history
+addMessage(conversationHistory[1].content);
 
-  if(query !== ""){
-    container.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px;">
-        <img src="${profilePic}" alt="Profile Pic" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
-        <div>
-          <strong>${query}</strong>
-          <p>User found below the search box.</p>
-        </div>
-      </div>
-    `;
-  } else {
-    container.innerHTML = "";
-  }
-}
-
-document.getElementById('searchInput').addEventListener('input', liveSearch);
 </script>
-
 </body>
 </html>
