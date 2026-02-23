@@ -11,6 +11,27 @@ body {
     font-family:Arial;
 }
 
+/* TURN DISPLAY */
+#turn {
+    padding:10px 20px;
+    border-radius:10px;
+    display:inline-block;
+    transition:0.3s;
+    margin-top:10px;
+}
+
+.turn-black {
+    background:black;
+    color:white;
+    box-shadow:0 0 20px white;
+}
+
+.turn-white {
+    background:white;
+    color:black;
+    box-shadow:0 0 20px yellow;
+}
+
 #board {
     display:grid;
     grid-template-columns:repeat(8,70px);
@@ -41,7 +62,16 @@ body {
 
 .king { border:3px solid gold; }
 
-.selected { outline:3px solid yellow; }
+/* CALEB ANIMATION */
+@keyframes caleb {
+    0% { transform: scale(1); box-shadow: 0 0 0px gold; }
+    50% { transform: scale(1.25); box-shadow: 0 0 30px gold; }
+    100% { transform: scale(1); box-shadow: 0 0 0px gold; }
+}
+
+.caleb {
+    animation: caleb 0.6s ease-in-out;
+}
 </style>
 </head>
 <body>
@@ -82,6 +112,7 @@ function createBoard() {
         }
     }
     render();
+    updateTurnColor();
 }
 
 function render(){
@@ -90,15 +121,28 @@ function render(){
         const r=sq.dataset.row;
         const c=sq.dataset.col;
         const piece=gameBoard[r][c];
+
         if(piece){
             const p=document.createElement("div");
             p.classList.add("piece");
+
             if(piece.includes("white")) p.classList.add("white");
             else p.classList.add("black");
+
             if(piece.includes("king")) p.classList.add("king");
+
             sq.appendChild(p);
         }
     });
+}
+
+function updateTurnColor(){
+    turnDisplay.classList.remove("turn-black","turn-white");
+    if(currentPlayer==="black"){
+        turnDisplay.classList.add("turn-black");
+    } else {
+        turnDisplay.classList.add("turn-white");
+    }
 }
 
 function handleClick(e){
@@ -109,7 +153,17 @@ function handleClick(e){
     if(piece && piece.startsWith(currentPlayer)){
         if(mustContinueJump && !(selected && selected.row===r && selected.col===c))
             return;
+
         selected={row:r,col:c};
+
+        // CALEB animation
+        const pieceDiv = e.currentTarget.querySelector(".piece");
+        if(pieceDiv){
+            pieceDiv.classList.add("caleb");
+            setTimeout(()=>{
+                pieceDiv.classList.remove("caleb");
+            },600);
+        }
         return;
     }
 
@@ -161,7 +215,6 @@ function move(sr,sc,er,ec){
 
     for(let [d1,d2] of dirs){
 
-        // normal move
         if(!mustCap && dr===d1 && dc===d2 && !gameBoard[er][ec]){
             gameBoard[er][ec]=piece;
             gameBoard[sr][sc]=null;
@@ -170,7 +223,6 @@ function move(sr,sc,er,ec){
             return;
         }
 
-        // capture
         if(dr===2*d1 && dc===2*d2){
             let midR=sr+d1;
             let midC=sc+d2;
@@ -209,6 +261,7 @@ function switchTurn(){
     selected=null;
     currentPlayer=currentPlayer==="black"?"white":"black";
     turnDisplay.textContent="Turn: "+currentPlayer.charAt(0).toUpperCase()+currentPlayer.slice(1);
+    updateTurnColor();
     render();
 }
 
