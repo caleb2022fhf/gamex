@@ -2,65 +2,72 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Official Dame Game</title>
+<title>Official Dame Game Centered</title>
 <style>
-body {
-    background:#222;
-    color:white;
-    text-align:center;
-    font-family:Arial;
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    color: white;
+    flex-direction: column;
 }
 
 /* TURN DISPLAY */
 #turn {
-    padding:10px 20px;
-    border-radius:10px;
-    display:inline-block;
-    transition:0.3s;
-    margin-top:10px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: inline-block;
+    transition: 0.3s;
+    margin-bottom: 20px;
 }
 
 .turn-black {
-    background:black;
-    color:white;
-    box-shadow:0 0 20px white;
+    background: black;
+    color: white;
+    box-shadow: 0 0 20px white;
 }
 
 .turn-white {
-    background:white;
-    color:black;
-    box-shadow:0 0 20px yellow;
+    background: white;
+    color: black;
+    box-shadow: 0 0 20px yellow;
 }
 
+/* BOARD STYLING */
 #board {
-    display:grid;
-    grid-template-columns:repeat(8,70px);
-    grid-template-rows:repeat(8,70px);
-    margin:20px auto;
+    display: grid;
+    grid-template-columns: repeat(8, 70px);
+    grid-template-rows: repeat(8, 70px);
+    background: #444;
+    box-shadow: 0 0 20px #000;
 }
 
 .square {
-    width:70px;
-    height:70px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.light { background:#ddd; }
-.dark { background:#444; }
+.light { background: #ddd; }
+.dark { background: #666; }
 
 .piece {
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    cursor:pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-.black { background:black; }
-.white { background:white; }
+.black { background: black; }
+.white { background: white; }
 
-.king { border:3px solid gold; }
+.king { border: 3px solid gold; }
 
 /* CALEB ANIMATION */
 @keyframes caleb {
