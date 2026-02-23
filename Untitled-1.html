@@ -12,7 +12,14 @@ body{font-family:Arial;text-align:center;background:#222;color:white}
 .piece{width:55px;height:55px;border-radius:50%;cursor:pointer}
 .white{background:white}
 .black{background:black}
-.king{border:4px solid gold}
+.king{border:4px solid gold; position: relative;}
+.king::after{
+  content: "👑"; /* ikimenyetso cy'ikamba */
+  position: absolute;
+  font-size: 24px;
+  top: 15px;
+  left: 15px;
+}
 </style>
 </head>
 <body>
@@ -93,8 +100,8 @@ function move(r1,c1,r2,c2){
   let dr=r2-r1;
   let dc=c2-c1;
 
-  // simple move
-  if(!mustCapture() && Math.abs(dr)==1 && Math.abs(dc)==1){
+  // simple move (None capture) yemerewe igihe nta capture ihari
+  if(Math.abs(dr)==1 && Math.abs(dc)==1){
     if(piece.color==="white" && dr==-1 || piece.color==="black" && dr==1 || piece.king){
       if(!game[r2][c2]){
         game[r2][c2]=piece;
@@ -123,8 +130,8 @@ function move(r1,c1,r2,c2){
 }
 
 function kingCheck(r,piece){
-  if(piece.color==="white" && r==0) piece.king=true;
-  if(piece.color==="black" && r==7) piece.king=true;
+  if(piece.color==="white" && r==0 && !piece.king) piece.king=true;
+  if(piece.color==="black" && r==7 && !piece.king) piece.king=true;
 }
 
 function changeTurn(){
