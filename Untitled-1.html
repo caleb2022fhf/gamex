@@ -1,294 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="rw">
 <head>
 <meta charset="UTF-8">
-<title>Official Dame Game Centered</title>
+<title>Dame – Official (Multiple Jumps)</title>
 <style>
-html, body {
-    height: 100%;
-    margin: 0;
-    background: #222;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-    color: white;
-    flex-direction: column;
-}
+    html, body {
+        height: 100%;
+        margin: 0;
+        background: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        color: #eee;
+        flex-direction: column;
+    }
+    h1 {
+        margin: 10px 0 5px;
+        font-size: 2.2rem;
+        text-shadow: 0 0 10px #444;
+    }
+    #turn {
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin: 15px 0 25px;
+        transition: all 0.4s;
+        min-width: 180px;
+        text-align: center;
+    }
+    .turn-black { background: #000; color: #fff; box-shadow: 0 0 25px #fff8; }
+    .turn-white { background: #fff; color: #000; box-shadow: 0 0 25px #ffeb3b; }
 
-/* TURN DISPLAY */
-#turn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    transition: 0.3s;
-    margin-bottom: 20px;
-}
+    #board {
+        display: grid;
+        grid-template-columns: repeat(8, 80px);
+        grid-template-rows: repeat(8, 80px);
+        background: #333;
+        border: 8px solid #444;
+        box-shadow: 0 0 30px #000;
+        margin: 0 auto;
+    }
+    .square {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .light { background: #eee; }
+    .dark  { background: #555; }
 
-.turn-black {
-    background: black;
-    color: white;
-    box-shadow: 0 0 20px white;
-}
+    .piece {
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .piece:hover { transform: scale(1.12); }
+    .black { background: #000; border: 2px solid #222; }
+    .white { background: #fff; border: 2px solid #ccc; }
+    .king  { border: 4px solid gold; box-shadow: 0 0 12px gold; }
 
-.turn-white {
-    background: white;
-    color: black;
-    box-shadow: 0 0 20px yellow;
-}
+    /* Animation iyo ukanze */
+    @keyframes eat {
+        0%   { transform: scale(1); }
+        40%  { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+    .eating { animation: eat 0.5s ease-in-out; }
 
-/* BOARD STYLING */
-#board {
-    display: grid;
-    grid-template-columns: repeat(8, 70px);
-    grid-template-rows: repeat(8, 70px);
-    background: #444;
-    box-shadow: 0 0 20px #000;
-}
-
-.square {
-    width: 70px;
-    height: 70px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.light { background: #ddd; }
-.dark { background: #666; }
-
-.piece {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.black { background: black; }
-.white { background: white; }
-
-.king { border: 3px solid gold; }
-
-/* CALEB ANIMATION */
-@keyframes caleb {
-    0% { transform: scale(1); box-shadow: 0 0 0px gold; }
-    50% { transform: scale(1.25); box-shadow: 0 0 30px gold; }
-    100% { transform: scale(1); box-shadow: 0 0 0px gold; }
-}
-
-.caleb {
-    animation: caleb 0.6s ease-in-out;
-}
+    .selected {
+        box-shadow: 0 0 0 5px #0f0;
+        transform: scale(1.15);
+    }
 </style>
 </head>
 <body>
 
-<h1>Official Dame (Checkers)</h1>
-<h2 id="turn">Turn: Black</h2>
+<h1>Dame (Checkers)</h1>
+<h2 id="turn">Urukino: Umukara</h2>
+
 <div id="board"></div>
 
 <script>
-const board = document.getElementById("board");
-const turnDisplay = document.getElementById("turn");
+const boardEl = document.getElementById("board");
+const turnEl   = document.getElementById("turn");
 
-let currentPlayer = "black";
+let currentPlayer = "black";       // black cyangwa white
 let selected = null;
 let mustContinueJump = false;
 let gameBoard = [];
 
-function createBoard() {
-    board.innerHTML = "";
-    gameBoard = [];
+function initBoard() {
+    boardEl.innerHTML = "";
+    gameBoard = Array(8).fill().map(()=>Array(8).fill(null));
 
-    for (let r=0;r<8;r++){
-        gameBoard[r]=[];
-        for(let c=0;c<8;c++){
-            const sq=document.createElement("div");
+    for(let r = 0; r < 8; r++) {
+        for(let c = 0; c < 8; c++) {
+            const sq = document.createElement("div");
             sq.classList.add("square");
-            sq.classList.add((r+c)%2===0?"light":"dark");
-            sq.dataset.row=r;
-            sq.dataset.col=c;
-            sq.addEventListener("click",handleClick);
-            board.appendChild(sq);
+            sq.classList.add((r+c) % 2 === 0 ? "light" : "dark");
+            sq.dataset.row = r;
+            sq.dataset.col = c;
+            sq.addEventListener("click", onSquareClick);
+            boardEl.appendChild(sq);
 
-            if((r+c)%2!==0){
-                if(r<3) gameBoard[r][c]="white";
-                else if(r>4) gameBoard[r][c]="black";
-                else gameBoard[r][c]=null;
-            } else gameBoard[r][c]=null;
+            // Pieces zibanza (classic checkers setup)
+            if ((r+c) % 2 !== 0) {
+                if (r < 3)      gameBoard[r][c] = "white";
+                else if (r > 4) gameBoard[r][c] = "black";
+            }
         }
     }
     render();
-    updateTurnColor();
+    updateTurnDisplay();
 }
 
-function render(){
-    document.querySelectorAll(".square").forEach(sq=>{
-        sq.innerHTML="";
-        const r=sq.dataset.row;
-        const c=sq.dataset.col;
-        const piece=gameBoard[r][c];
-
-        if(piece){
-            const p=document.createElement("div");
-            p.classList.add("piece");
-
-            if(piece.includes("white")) p.classList.add("white");
-            else p.classList.add("black");
-
-            if(piece.includes("king")) p.classList.add("king");
-
-            sq.appendChild(p);
+function render() {
+    document.querySelectorAll(".square").forEach(sq => {
+        sq.innerHTML = "";
+        const r = +sq.dataset.row;
+        const c = +sq.dataset.col;
+        const p = gameBoard[r][c];
+        if (p) {
+            const piece = document.createElement("div");
+            piece.classList.add("piece");
+            piece.classList.add(p.includes("black") ? "black" : "white");
+            if (p.includes("king")) piece.classList.add("king");
+            sq.appendChild(piece);
         }
     });
 }
 
-function updateTurnColor(){
-    turnDisplay.classList.remove("turn-black","turn-white");
-    if(currentPlayer==="black"){
-        turnDisplay.classList.add("turn-black");
-    } else {
-        turnDisplay.classList.add("turn-white");
-    }
+function updateTurnDisplay() {
+    turnEl.classList.remove("turn-black", "turn-white");
+    turnEl.className = currentPlayer === "black" ? "turn-black" : "turn-white";
+    turnEl.textContent = `Urukino: ${currentPlayer === "black" ? "Umukara" : "Umweru"}`;
 }
 
-function handleClick(e){
-    const r=parseInt(e.currentTarget.dataset.row);
-    const c=parseInt(e.currentTarget.dataset.col);
-    const piece=gameBoard[r][c];
+function onSquareClick(e) {
+    const r = +e.currentTarget.dataset.row;
+    const c = +e.currentTarget.dataset.col;
 
-    if(piece && piece.startsWith(currentPlayer)){
-        if(mustContinueJump && !(selected && selected.row===r && selected.col===c))
-            return;
-
-        selected={row:r,col:c};
-
-        // CALEB animation
-        const pieceDiv = e.currentTarget.querySelector(".piece");
-        if(pieceDiv){
-            pieceDiv.classList.add("caleb");
-            setTimeout(()=>{
-                pieceDiv.classList.remove("caleb");
-            },600);
+    // 1. Gufata piece yawe (select)
+    if (gameBoard[r][c]?.startsWith(currentPlayer)) {
+        if (mustContinueJump && (selected?.row !== r || selected?.col !== c)) {
+            return; // uri mu multiple jump – ugomba gukomeza na piece imwe gusa
         }
+        selected = {row: r, col: c};
+        render(); // re-draw kubera animation / selected style
+        e.currentTarget.querySelector(".piece")?.classList.add("selected");
         return;
     }
 
-    if(selected){
-        move(selected.row,selected.col,r,c);
+    // 2. Ugiye guhindura aho piece igeze (move / capture)
+    if (selected) {
+        tryMove(selected.row, selected.col, r, c);
     }
 }
 
-function getDirections(piece){
-    if(piece.includes("king"))
-        return [[1,1],[1,-1],[-1,1],[-1,-1]];
-    return currentPlayer==="black"?[[-1,1],[-1,-1]]:[[1,1],[1,-1]];
+function getDirections(isKing) {
+    if (isKing) return [[-1,-1], [-1,1], [1,-1], [1,1]];
+    return currentPlayer === "black" ? [[-1,-1], [-1,1]] : [[1,-1], [1,1]];
 }
 
-function hasCapture(r,c){
-    const piece=gameBoard[r][c];
-    const dirs=getDirections(piece);
-    for(let [dr,dc] of dirs){
-        let r1=r+dr, c1=c+dc;
-        let r2=r+2*dr, c2=c+2*dc;
-        if(inBounds(r2,c2) &&
-           gameBoard[r1][c1] &&
-           !gameBoard[r1][c1].startsWith(currentPlayer) &&
-           !gameBoard[r2][c2]){
+function canCapture(fromR, fromC) {
+    const piece = gameBoard[fromR][fromC];
+    if (!piece) return false;
+    const dirs = getDirections(piece.includes("king"));
+    for (let [dr, dc] of dirs) {
+        const midR = fromR + dr;
+        const midC = fromC + dc;
+        const endR = fromR + 2*dr;
+        const endC = fromC + 2*dc;
+        if (inBounds(endR, endC) &&
+            gameBoard[midR]?.[midC] &&
+            !gameBoard[midR][midC].startsWith(currentPlayer) &&
+            !gameBoard[endR][endC]) {
             return true;
         }
     }
     return false;
 }
 
-function playerMustCapture(){
-    for(let r=0;r<8;r++)
-        for(let c=0;c<8;c++)
-            if(gameBoard[r][c] &&
-               gameBoard[r][c].startsWith(currentPlayer) &&
-               hasCapture(r,c))
-               return true;
+function mustCaptureThisTurn() {
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++)
+            if (gameBoard[r][c]?.startsWith(currentPlayer) && canCapture(r, c))
+                return true;
     return false;
 }
 
-function move(sr,sc,er,ec){
-    const piece=gameBoard[sr][sc];
-    if(!piece) return;
+function tryMove(sr, sc, er, ec) {
+    if (!inBounds(er, ec)) return;
+    const piece = gameBoard[sr][sc];
+    if (!piece) return;
 
-    const dr=er-sr;
-    const dc=ec-sc;
-    const dirs=getDirections(piece);
-    const mustCap=playerMustCapture();
+    const dr = er - sr;
+    const dc = ec - sc;
+    const isKing = piece.includes("king");
+    const dirs = getDirections(isKing);
+    const mustCap = mustCaptureThisTurn();
 
-    for(let [d1,d2] of dirs){
-
-        if(!mustCap && dr===d1 && dc===d2 && !gameBoard[er][ec]){
-            gameBoard[er][ec]=piece;
-            gameBoard[sr][sc]=null;
-            promote(er,ec);
-            switchTurn();
+    // Simple move (1 square) – only if no capture possible anywhere
+    for (let [ddr, ddc] of dirs) {
+        if (!mustCap && dr === ddr && dc === ddc && !gameBoard[er][ec]) {
+            doMove(sr, sc, er, ec, null);
             return;
         }
+    }
 
-        if(dr===2*d1 && dc===2*d2){
-            let midR=sr+d1;
-            let midC=sc+d2;
-            if(inBounds(er,ec) &&
-               gameBoard[midR][midC] &&
-               !gameBoard[midR][midC].startsWith(currentPlayer) &&
-               !gameBoard[er][ec]){
+    // Capture (jump over enemy)
+    for (let [ddr, ddc] of dirs) {
+        if (dr === 2*ddr && dc === 2*ddc) {
+            const midR = sr + ddr;
+            const midC = sc + ddc;
+            const eaten = gameBoard[midR]?.[midC];
 
-                gameBoard[er][ec]=piece;
-                gameBoard[sr][sc]=null;
-                gameBoard[midR][midC]=null;
-                promote(er,ec);
+            if (inBounds(er, ec) &&
+                eaten &&
+                !eaten.startsWith(currentPlayer) &&
+                !gameBoard[er][ec]) {
 
-                if(hasCapture(er,ec)){
-                    selected={row:er,col:ec};
-                    mustContinueJump=true;
-                } else {
-                    mustContinueJump=false;
-                    switchTurn();
-                }
-                checkWin();
+                doMove(sr, sc, er, ec, {r: midR, c: midC});
                 return;
             }
         }
     }
 }
 
-function promote(r,c){
-    if(currentPlayer==="black" && r===0)
-        gameBoard[r][c]="black king";
-    if(currentPlayer==="white" && r===7)
-        gameBoard[r][c]="white king";
-}
+function doMove(sr, sc, er, ec, captured) {
+    const piece = gameBoard[sr][sc];
+    gameBoard[er][ec] = piece;
+    gameBoard[sr][sc] = null;
 
-function switchTurn(){
-    selected=null;
-    currentPlayer=currentPlayer==="black"?"white":"black";
-    turnDisplay.textContent="Turn: "+currentPlayer.charAt(0).toUpperCase()+currentPlayer.slice(1);
-    updateTurnColor();
+    if (captured) {
+        gameBoard[captured.r][captured.c] = null;
+        // Animation y'urya inka
+        const eatenSq = document.querySelector(`[data-row="${captured.r}"][data-col="${captured.c}"] .piece`);
+        if (eatenSq) eatenSq.classList.add("eating");
+    }
+
+    promoteIfNeeded(er, ec);
+
+    // Check if can continue jumping with this same piece
+    if (captured && canCapture(er, ec)) {
+        mustContinueJump = true;
+        selected = {row: er, col: ec};
+        render();
+        document.querySelector(`[data-row="${er}"][data-col="${ec}"] .piece`)?.classList.add("selected");
+    } else {
+        mustContinueJump = false;
+        selected = null;
+        currentPlayer = currentPlayer === "black" ? "white" : "black";
+        updateTurnDisplay();
+        checkGameOver();
+    }
+
     render();
 }
 
-function checkWin(){
-    let black=0, white=0;
-    for(let r=0;r<8;r++)
-        for(let c=0;c<8;c++){
-            if(gameBoard[r][c]?.startsWith("black")) black++;
-            if(gameBoard[r][c]?.startsWith("white")) white++;
+function promoteIfNeeded(r, c) {
+    const p = gameBoard[r][c];
+    if (p === "black" && r === 0)   gameBoard[r][c] = "black king";
+    if (p === "white" && r === 7)   gameBoard[r][c] = "white king";
+}
+
+function checkGameOver() {
+    let blackCount = 0, whiteCount = 0;
+    for (let r = 0; r < 8; r++)
+        for (let c = 0; c < 8; c++) {
+            if (gameBoard[r][c]?.startsWith("black")) blackCount++;
+            if (gameBoard[r][c]?.startsWith("white")) whiteCount++;
         }
-    if(black===0) alert("White Wins!");
-    if(white===0) alert("Black Wins!");
+    if (blackCount === 0) setTimeout(()=>alert("Umweru yatsinze!"), 300);
+    if (whiteCount === 0) setTimeout(()=>alert("Umukara yatsinze!"), 300);
 }
 
-function inBounds(r,c){
-    return r>=0 && r<8 && c>=0 && c<8;
+function inBounds(r, c) {
+    return r >= 0 && r < 8 && c >= 0 && c < 8;
 }
 
-createBoard();
+initBoard();
 </script>
-
 </body>
 </html>
