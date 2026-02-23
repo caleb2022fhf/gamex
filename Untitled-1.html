@@ -1,138 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="rw">
 <head>
 <meta charset="UTF-8">
-<title>Dame</title>
-
+<title>DAME GAME</title>
 <style>
-body{display:flex;justify-content:center;align-items:center;height:100vh;background:#5c3b1e;}
-.board{display:grid;grid-template-columns:repeat(8,70px);}
-.cell{width:70px;height:70px;display:flex;justify-content:center;align-items:center;}
-.dark{background:#7a4b27;}
-.light{background:#e3c39b;}
-.piece{width:50px;height:50px;border-radius:50%;cursor:pointer;}
-.white{background:white;}
-.black{background:black;}
-.selected{outline:4px solid yellow;}
+body{font-family:Arial;text-align:center;background:#222;color:white}
+.board{display:grid;grid-template-columns:repeat(8,70px);margin:auto;width:560px}
+.cell{width:70px;height:70px;display:flex;align-items:center;justify-content:center}
+.dark{background:#7a4b2b}
+.light{background:#f0d9b5}
+.piece{width:55px;height:55px;border-radius:50%;cursor:pointer}
+.white{background:white}
+.black{background:black}
+.king{border:4px solid gold}
 </style>
 </head>
-
 <body>
-<div class="board" id="board"></div>
+
+<h2>DAME</h2>
+<div id="board" class="board"></div>
+<h3 id="turn"></h3>
 
 <script>
 const board = document.getElementById("board");
+const turnText = document.getElementById("turn");
+
+let currentPlayer = "white";
 let selected = null;
-let turn = "white";
+
+let game = [];
 
 function createBoard(){
-for(let r=0;r<8;r++){
-for(let c=0;c<8;c++){
+  board.innerHTML="";
+  game=[];
+  for(let r=0;r<8;r++){
+    game[r]=[];
+    for(let c=0;c<8;c++){
+      let cell=document.createElement("div");
+      cell.className="cell "+((r+c)%2?"dark":"light");
+      cell.dataset.row=r;
+      cell.dataset.col=c;
 
-let cell=document.createElement("div");
-cell.className="cell "+((r+c)%2?"dark":"light");
-cell.dataset.row=r;
-cell.dataset.col=c;
+      if((r+c)%2){
+        if(r<3) game[r][c]={color:"black",king:false};
+        else if(r>4) game[r][c]={color:"white",king:false};
+        else game[r][c]=null;
+      }
 
-if((r+c)%2){
-if(r<3)addPiece(cell,"black");
-if(r>4)addPiece(cell,"white");
+      cell.onclick=()=>cellClick(r,c);
+      board.appendChild(cell);
+    }
+  }
+  draw();
 }
 
-cell.onclick=()=>move(cell);
-board.appendChild(cell);
-}}
+function draw(){
+  document.querySelectorAll(".cell").forEach(c=>c.innerHTML="");
+
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      if(game[r][c]){
+        let piece=document.createElement("div");
+        piece.className="piece "+game[r][c].color;
+        if(game[r][c].king) piece.classList.add("king");
+        board.children[r*8+c].appendChild(piece);
+      }
+    }
+  }
+
+  turnText.innerText="Turn: "+currentPlayer;
 }
 
-function addPiece(cell,color){
-let p=document.createElement("div");
-p.className="piece "+color;
+function cellClick(r,c){
+  let piece=game[r][c];
 
-p.onclick=(e)=>{
-if(p.classList.contains(turn)){
-clearSelect();
-selected=p;
-p.classList.add("selected");
-}
-e.stopPropagation();
-};
+  if(selected){
+    move(selected.r,selected.c,r,c);
+    selected=null;
+    draw();
+    return;
+  }
 
-cell.appendChild(p);
-}
-
-function clearSelect(){
-if(selected)selected.classList.remove("selected");
+  if(piece && piece.color===currentPlayer){
+    selected={r,c};
+  }
 }
 
-function move(cell){
-if(!selected || cell.children.length) return;
+function move(r1,c1,r2,c2){
+  let piece=game[r1][c1];
+  if(!piece) return;
 
-let fr=selected.parentElement.dataset.row*1;
-let fc=selected.parentElement.dataset.col*1;
-let tr=cell.dataset.row*1;
-let tc=cell.dataset.col*1;
+  let dr=r2-r1;
+  let dc=c2-c1;
 
-if(Math.abs(fr-tr)==1 && Math.abs(fc-tc)==1){
-cell.appendChild(selected);
-endTurn();
+  // simple move
+  if(!mustCapture() && Math.abs(dr)==1 && Math.abs(dc)==1){
+    if(piece.color==="white" && dr==-1 || piece.color==="black" && dr==1 || piece.king){
+      if(!game[r2][c2]){
+        game[r2][c2]=piece;
+        game[r1][c1]=null;
+        kingCheck(r2,piece);
+        changeTurn();
+      }
+    }
+  }
+
+  // capture
+  if(Math.abs(dr)==2 && Math.abs(dc)==2){
+    let mr=r1+dr/2;
+    let mc=c1+dc/2;
+    if(game[mr][mc] && game[mr][mc].color!==piece.color){
+      game[r2][c2]=piece;
+      game[r1][c1]=null;
+      game[mr][mc]=null;
+      kingCheck(r2,piece);
+
+      if(!canCaptureAgain(r2,c2)){
+        changeTurn();
+      }
+    }
+  }
 }
 
-if(Math.abs(fr-tr)==2 && Math.abs(fc-tc)==2){
-let mr=(fr+tr)/2;
-let mc=(fc+tc)/2;
-
-let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
-
-if(mid.children.length &&
-!mid.children[0].classList.contains(turn)){
-
-mid.innerHTML="";
-cell.appendChild(selected);
-
-if(canEatAgain(selected)){
-selected.classList.add("selected");
-}else endTurn();
-}
-}
+function kingCheck(r,piece){
+  if(piece.color==="white" && r==0) piece.king=true;
+  if(piece.color==="black" && r==7) piece.king=true;
 }
 
-function canEatAgain(p){
-let r=p.parentElement.dataset.row*1;
-let c=p.parentElement.dataset.col*1;
-
-let enemy=turn=="white"?"black":"white";
-
-let dirs=[[2,2],[2,-2],[-2,2],[-2,-2]];
-
-for(let d of dirs){
-
-let mr=r+d[0]/2;
-let mc=c+d[1]/2;
-
-let tr=r+d[0];
-let tc=c+d[1];
-
-let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
-let target=document.querySelector(`[data-row='${tr}'][data-col='${tc}']`);
-
-if(mid && target &&
-mid.children.length &&
-mid.children[0].classList.contains(enemy) &&
-!target.children.length){
-return true;
-}
+function changeTurn(){
+  currentPlayer=currentPlayer==="white"?"black":"white";
 }
 
-return false;
+function mustCapture(){
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      if(game[r][c] && game[r][c].color===currentPlayer){
+        if(canCaptureAgain(r,c)) return true;
+      }
+    }
+  }
+  return false;
 }
 
-function endTurn(){
-clearSelect();
-selected=null;
-turn = turn=="white"?"black":"white";
+function canCaptureAgain(r,c){
+  let dirs=[[2,2],[2,-2],[-2,2],[-2,-2]];
+  for(let d of dirs){
+    let r2=r+d[0], c2=c+d[1];
+    let mr=r+d[0]/2, mc=c+d[1]/2;
+    if(r2>=0 && r2<8 && c2>=0 && c2<8){
+      if(!game[r2][c2] && game[mr][mc] && game[mr][mc].color!==game[r][c].color){
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 createBoard();
 </script>
+
 </body>
 </html>
