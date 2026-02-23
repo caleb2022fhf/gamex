@@ -1,29 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Dame Game</title>
+<title>Dame - Full Rules</title>
 
 <style>
-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:#5c3b1e;
-}
-.board{
-  display:grid;
-  grid-template-columns:repeat(8,70px);
-}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:#5c3b1e;}
+.board{display:grid;grid-template-columns:repeat(8,70px);}
 .cell{width:70px;height:70px;display:flex;justify-content:center;align-items:center;}
 .dark{background:#7a4b27;}
 .light{background:#e3c39b;}
-.piece{
-  width:50px;height:50px;border-radius:50%;
-  cursor:pointer;display:flex;justify-content:center;align-items:center;
-  font-weight:bold;font-size:20px;color:red;
-}
+.piece{width:50px;height:50px;border-radius:50%;cursor:pointer;
+display:flex;justify-content:center;align-items:center;font-size:22px;font-weight:bold;}
 .white{background:white;}
 .black{background:black;color:white;}
 .selected{outline:4px solid yellow;}
@@ -31,19 +19,17 @@ body{
 </head>
 
 <body>
-
 <div class="board" id="board"></div>
 
 <script>
 const board = document.getElementById("board");
-let selected = null;
-let currentPlayer = "white";
+let selected=null;
+let currentPlayer="white";
 
 function createBoard(){
 for(let r=0;r<8;r++){
 for(let c=0;c<8;c++){
-
-const cell=document.createElement("div");
+let cell=document.createElement("div");
 cell.className="cell "+((r+c)%2?"dark":"light");
 cell.dataset.row=r;
 cell.dataset.col=c;
@@ -59,7 +45,7 @@ board.appendChild(cell);
 }
 
 function addPiece(cell,color){
-const p=document.createElement("div");
+let p=document.createElement("div");
 p.className="piece "+color;
 p.onclick=(e)=>{
 if(p.classList.contains(currentPlayer)){
@@ -76,62 +62,91 @@ function clearSelect(){
 if(selected)selected.classList.remove("selected");
 }
 
-function isKing(piece){
-return piece.innerHTML==="👑";
-}
-
 function makeKing(piece,row){
 if(piece.classList.contains("white") && row==0)piece.innerHTML="👑";
 if(piece.classList.contains("black") && row==7)piece.innerHTML="👑";
 }
 
+function isKing(p){return p.innerHTML=="👑";}
+
 function move(cell){
-if(!selected)return;
+if(!selected || cell.children.length) return;
 
-let fr=selected.parentElement.dataset.row*1;
-let fc=selected.parentElement.dataset.col*1;
-let tr=cell.dataset.row*1;
-let tc=cell.dataset.col*1;
+let fr=+selected.parentElement.dataset.row;
+let fc=+selected.parentElement.dataset.col;
+let tr=+cell.dataset.row;
+let tc=+cell.dataset.col;
 
-let dir = selected.classList.contains("white")?-1:1;
-let king=isKing(selected);
+let dr=tr-fr;
+let dc=tc-fc;
 
-if(cell.children.length) return;
-
-// normal move
-if(Math.abs(fc-tc)==1 && ((tr-fr)==dir || king)){
-cell.appendChild(selected);
-makeKing(selected,tr);
-endTurn();
+if(isKing(selected)){
+kingMove(cell,fr,fc,tr,tc);
+}else{
+normalMove(cell,fr,fc,tr,tc);
+}
 }
 
-// capture
-if(Math.abs(fc-tc)==2){
+function normalMove(cell,fr,fc,tr,tc){
+
+// capture in any direction
+if(Math.abs(tr-fr)==2 && Math.abs(tc-fc)==2){
 let mr=(fr+tr)/2;
 let mc=(fc+tc)/2;
 let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
 
 if(mid.children.length &&
 !mid.children[0].classList.contains(currentPlayer)){
-
 mid.innerHTML="";
 cell.appendChild(selected);
 makeKing(selected,tr);
 
 if(canCaptureAgain(selected)){
 selected.classList.add("selected");
-}else{
-endTurn();
+}else endTurn();
 }
 }
+}
+
+function kingMove(cell,fr,fc,tr,tc){
+
+if(Math.abs(tr-fr)==Math.abs(tc-fc)){
+
+let stepR=(tr-fr)/Math.abs(tr-fr);
+let stepC=(tc-fc)/Math.abs(tc-fc);
+
+let r=fr+stepR;
+let c=fc+stepC;
+let enemyPiece=null;
+
+while(r!=tr && c!=tc){
+let mid=document.querySelector(`[data-row='${r}'][data-col='${c}']`);
+
+if(mid.children.length){
+if(mid.children[0].classList.contains(currentPlayer)) return;
+
+if(enemyPiece) return;
+enemyPiece=mid;
+}
+r+=stepR;
+c+=stepC;
+}
+
+if(enemyPiece) enemyPiece.innerHTML="";
+
+cell.appendChild(selected);
+
+if(canCaptureAgain(selected)){
+selected.classList.add("selected");
+}else endTurn();
 }
 }
 
 function canCaptureAgain(piece){
-let r=piece.parentElement.dataset.row*1;
-let c=piece.parentElement.dataset.col*1;
-
+let r=+piece.parentElement.dataset.row;
+let c=+piece.parentElement.dataset.col;
 let enemy=currentPlayer=="white"?"black":"white";
+
 let dirs=[[1,1],[1,-1],[-1,1],[-1,-1]];
 
 for(let d of dirs){
@@ -145,7 +160,7 @@ let target=document.querySelector(`[data-row='${tr}'][data-col='${tc}']`);
 
 if(mid && target && mid.children.length &&
 mid.children[0].classList.contains(enemy) &&
-target.children.length==0){
+!target.children.length){
 return true;
 }
 }
@@ -156,19 +171,9 @@ function endTurn(){
 clearSelect();
 selected=null;
 currentPlayer=currentPlayer=="white"?"black":"white";
-checkWin();
-}
-
-function checkWin(){
-let whites=document.querySelectorAll(".white").length;
-let blacks=document.querySelectorAll(".black").length;
-
-if(!whites)alert("Black wins!");
-if(!blacks)alert("White wins!");
 }
 
 createBoard();
 </script>
-
 </body>
 </html>
