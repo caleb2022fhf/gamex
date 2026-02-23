@@ -2,57 +2,51 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dame Game</title>
+<title>Official Dame Game</title>
 <style>
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: Arial;
-    background: #222;
-    color: white;
+    background:#222;
+    color:white;
+    text-align:center;
+    font-family:Arial;
 }
 
 #board {
-    display: grid;
-    grid-template-columns: repeat(8, 70px);
-    grid-template-rows: repeat(8, 70px);
-    margin-top: 20px;
+    display:grid;
+    grid-template-columns:repeat(8,70px);
+    grid-template-rows:repeat(8,70px);
+    margin:20px auto;
 }
 
 .square {
-    width: 70px;
-    height: 70px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width:70px;
+    height:70px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-.dark { background: #444; }
-.light { background: #ddd; }
+.light { background:#ddd; }
+.dark { background:#444; }
 
 .piece {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    cursor:pointer;
 }
 
-.black { background: black; }
-.white { background: white; }
+.black { background:black; }
+.white { background:white; }
 
-.king {
-    border: 3px solid gold;
-}
+.king { border:3px solid gold; }
 
-.selected {
-    outline: 3px solid yellow;
-}
+.selected { outline:3px solid yellow; }
 </style>
 </head>
 <body>
 
-<h1>Dame (Checkers)</h1>
+<h1>Official Dame (Checkers)</h1>
 <h2 id="turn">Turn: Black</h2>
 <div id="board"></div>
 
@@ -62,113 +56,175 @@ const turnDisplay = document.getElementById("turn");
 
 let currentPlayer = "black";
 let selected = null;
+let mustContinueJump = false;
 let gameBoard = [];
 
 function createBoard() {
     board.innerHTML = "";
     gameBoard = [];
 
-    for (let row = 0; row < 8; row++) {
-        gameBoard[row] = [];
+    for (let r=0;r<8;r++){
+        gameBoard[r]=[];
+        for(let c=0;c<8;c++){
+            const sq=document.createElement("div");
+            sq.classList.add("square");
+            sq.classList.add((r+c)%2===0?"light":"dark");
+            sq.dataset.row=r;
+            sq.dataset.col=c;
+            sq.addEventListener("click",handleClick);
+            board.appendChild(sq);
 
-        for (let col = 0; col < 8; col++) {
-            const square = document.createElement("div");
-            square.classList.add("square");
-            square.classList.add((row + col) % 2 === 0 ? "light" : "dark");
-            square.dataset.row = row;
-            square.dataset.col = col;
-
-            square.addEventListener("click", handleClick);
-
-            board.appendChild(square);
-
-            if ((row + col) % 2 !== 0) {
-                if (row < 3) gameBoard[row][col] = "white";
-                else if (row > 4) gameBoard[row][col] = "black";
-                else gameBoard[row][col] = null;
-            } else {
-                gameBoard[row][col] = null;
-            }
+            if((r+c)%2!==0){
+                if(r<3) gameBoard[r][c]="white";
+                else if(r>4) gameBoard[r][c]="black";
+                else gameBoard[r][c]=null;
+            } else gameBoard[r][c]=null;
         }
     }
-
-    renderBoard();
+    render();
 }
 
-function renderBoard() {
-    document.querySelectorAll(".square").forEach(square => {
-        square.innerHTML = "";
-        const row = square.dataset.row;
-        const col = square.dataset.col;
-        const piece = gameBoard[row][col];
-
-        if (piece) {
-            const pieceDiv = document.createElement("div");
-            pieceDiv.classList.add("piece", piece);
-
-            if (piece.includes("king")) {
-                pieceDiv.classList.add("king");
-            }
-
-            square.appendChild(pieceDiv);
+function render(){
+    document.querySelectorAll(".square").forEach(sq=>{
+        sq.innerHTML="";
+        const r=sq.dataset.row;
+        const c=sq.dataset.col;
+        const piece=gameBoard[r][c];
+        if(piece){
+            const p=document.createElement("div");
+            p.classList.add("piece");
+            if(piece.includes("white")) p.classList.add("white");
+            else p.classList.add("black");
+            if(piece.includes("king")) p.classList.add("king");
+            sq.appendChild(p);
         }
     });
 }
 
-function handleClick(e) {
-    const square = e.currentTarget;
-    const row = parseInt(square.dataset.row);
-    const col = parseInt(square.dataset.col);
+function handleClick(e){
+    const r=parseInt(e.currentTarget.dataset.row);
+    const c=parseInt(e.currentTarget.dataset.col);
+    const piece=gameBoard[r][c];
 
-    const piece = gameBoard[row][col];
-
-    if (piece && piece.startsWith(currentPlayer)) {
-        selected = { row, col };
+    if(piece && piece.startsWith(currentPlayer)){
+        if(mustContinueJump && !(selected && selected.row===r && selected.col===c))
+            return;
+        selected={row:r,col:c};
         return;
     }
 
-    if (selected) {
-        movePiece(selected.row, selected.col, row, col);
-        selected = null;
+    if(selected){
+        move(selected.row,selected.col,r,c);
     }
 }
 
-function movePiece(sr, sc, er, ec) {
-    const piece = gameBoard[sr][sc];
-    if (!piece) return;
+function getDirections(piece){
+    if(piece.includes("king"))
+        return [[1,1],[1,-1],[-1,1],[-1,-1]];
+    return currentPlayer==="black"?[[-1,1],[-1,-1]]:[[1,1],[1,-1]];
+}
 
-    const direction = currentPlayer === "black" ? -1 : 1;
-    const rowDiff = er - sr;
-    const colDiff = ec - sc;
-
-    if (Math.abs(colDiff) === 1 && rowDiff === direction && !gameBoard[er][ec]) {
-        gameBoard[er][ec] = piece;
-        gameBoard[sr][sc] = null;
-    }
-    else if (Math.abs(colDiff) === 2 && rowDiff === direction * 2) {
-        const midRow = (sr + er) / 2;
-        const midCol = (sc + ec) / 2;
-
-        if (gameBoard[midRow][midCol] &&
-            !gameBoard[midRow][midCol].startsWith(currentPlayer)) {
-
-            gameBoard[er][ec] = piece;
-            gameBoard[sr][sc] = null;
-            gameBoard[midRow][midCol] = null;
+function hasCapture(r,c){
+    const piece=gameBoard[r][c];
+    const dirs=getDirections(piece);
+    for(let [dr,dc] of dirs){
+        let r1=r+dr, c1=c+dc;
+        let r2=r+2*dr, c2=c+2*dc;
+        if(inBounds(r2,c2) &&
+           gameBoard[r1][c1] &&
+           !gameBoard[r1][c1].startsWith(currentPlayer) &&
+           !gameBoard[r2][c2]){
+            return true;
         }
-    } else {
-        return;
     }
+    return false;
+}
 
-    if (currentPlayer === "black" && er === 0)
-        gameBoard[er][ec] = "black king";
-    if (currentPlayer === "white" && er === 7)
-        gameBoard[er][ec] = "white king";
+function playerMustCapture(){
+    for(let r=0;r<8;r++)
+        for(let c=0;c<8;c++)
+            if(gameBoard[r][c] &&
+               gameBoard[r][c].startsWith(currentPlayer) &&
+               hasCapture(r,c))
+               return true;
+    return false;
+}
 
-    currentPlayer = currentPlayer === "black" ? "white" : "black";
-    turnDisplay.textContent = "Turn: " + currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1);
+function move(sr,sc,er,ec){
+    const piece=gameBoard[sr][sc];
+    if(!piece) return;
 
-    renderBoard();
+    const dr=er-sr;
+    const dc=ec-sc;
+    const dirs=getDirections(piece);
+    const mustCap=playerMustCapture();
+
+    for(let [d1,d2] of dirs){
+
+        // normal move
+        if(!mustCap && dr===d1 && dc===d2 && !gameBoard[er][ec]){
+            gameBoard[er][ec]=piece;
+            gameBoard[sr][sc]=null;
+            promote(er,ec);
+            switchTurn();
+            return;
+        }
+
+        // capture
+        if(dr===2*d1 && dc===2*d2){
+            let midR=sr+d1;
+            let midC=sc+d2;
+            if(inBounds(er,ec) &&
+               gameBoard[midR][midC] &&
+               !gameBoard[midR][midC].startsWith(currentPlayer) &&
+               !gameBoard[er][ec]){
+
+                gameBoard[er][ec]=piece;
+                gameBoard[sr][sc]=null;
+                gameBoard[midR][midC]=null;
+                promote(er,ec);
+
+                if(hasCapture(er,ec)){
+                    selected={row:er,col:ec};
+                    mustContinueJump=true;
+                } else {
+                    mustContinueJump=false;
+                    switchTurn();
+                }
+                checkWin();
+                return;
+            }
+        }
+    }
+}
+
+function promote(r,c){
+    if(currentPlayer==="black" && r===0)
+        gameBoard[r][c]="black king";
+    if(currentPlayer==="white" && r===7)
+        gameBoard[r][c]="white king";
+}
+
+function switchTurn(){
+    selected=null;
+    currentPlayer=currentPlayer==="black"?"white":"black";
+    turnDisplay.textContent="Turn: "+currentPlayer.charAt(0).toUpperCase()+currentPlayer.slice(1);
+    render();
+}
+
+function checkWin(){
+    let black=0, white=0;
+    for(let r=0;r<8;r++)
+        for(let c=0;c<8;c++){
+            if(gameBoard[r][c]?.startsWith("black")) black++;
+            if(gameBoard[r][c]?.startsWith("white")) white++;
+        }
+    if(black===0) alert("White Wins!");
+    if(white===0) alert("Black Wins!");
+}
+
+function inBounds(r,c){
+    return r>=0 && r<8 && c>=0 && c<8;
 }
 
 createBoard();
