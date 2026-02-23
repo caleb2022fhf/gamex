@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dame - Full Rules</title>
+<title>Dame</title>
 
 <style>
 body{display:flex;justify-content:center;align-items:center;height:100vh;background:#5c3b1e;}
@@ -10,10 +10,9 @@ body{display:flex;justify-content:center;align-items:center;height:100vh;backgro
 .cell{width:70px;height:70px;display:flex;justify-content:center;align-items:center;}
 .dark{background:#7a4b27;}
 .light{background:#e3c39b;}
-.piece{width:50px;height:50px;border-radius:50%;cursor:pointer;
-display:flex;justify-content:center;align-items:center;font-size:22px;font-weight:bold;}
+.piece{width:50px;height:50px;border-radius:50%;cursor:pointer;}
 .white{background:white;}
-.black{background:black;color:white;}
+.black{background:black;}
 .selected{outline:4px solid yellow;}
 </style>
 </head>
@@ -23,12 +22,13 @@ display:flex;justify-content:center;align-items:center;font-size:22px;font-weigh
 
 <script>
 const board = document.getElementById("board");
-let selected=null;
-let currentPlayer="white";
+let selected = null;
+let turn = "white";
 
 function createBoard(){
 for(let r=0;r<8;r++){
 for(let c=0;c<8;c++){
+
 let cell=document.createElement("div");
 cell.className="cell "+((r+c)%2?"dark":"light");
 cell.dataset.row=r;
@@ -47,14 +47,16 @@ board.appendChild(cell);
 function addPiece(cell,color){
 let p=document.createElement("div");
 p.className="piece "+color;
+
 p.onclick=(e)=>{
-if(p.classList.contains(currentPlayer)){
+if(p.classList.contains(turn)){
 clearSelect();
 selected=p;
 p.classList.add("selected");
 }
 e.stopPropagation();
 };
+
 cell.appendChild(p);
 }
 
@@ -62,115 +64,72 @@ function clearSelect(){
 if(selected)selected.classList.remove("selected");
 }
 
-function makeKing(piece,row){
-if(piece.classList.contains("white") && row==0)piece.innerHTML="👑";
-if(piece.classList.contains("black") && row==7)piece.innerHTML="👑";
-}
-
-function isKing(p){return p.innerHTML=="👑";}
-
 function move(cell){
 if(!selected || cell.children.length) return;
 
-let fr=+selected.parentElement.dataset.row;
-let fc=+selected.parentElement.dataset.col;
-let tr=+cell.dataset.row;
-let tc=+cell.dataset.col;
+let fr=selected.parentElement.dataset.row*1;
+let fc=selected.parentElement.dataset.col*1;
+let tr=cell.dataset.row*1;
+let tc=cell.dataset.col*1;
 
-let dr=tr-fr;
-let dc=tc-fc;
-
-if(isKing(selected)){
-kingMove(cell,fr,fc,tr,tc);
-}else{
-normalMove(cell,fr,fc,tr,tc);
-}
+if(Math.abs(fr-tr)==1 && Math.abs(fc-tc)==1){
+cell.appendChild(selected);
+endTurn();
 }
 
-function normalMove(cell,fr,fc,tr,tc){
-
-// capture in any direction
-if(Math.abs(tr-fr)==2 && Math.abs(tc-fc)==2){
+if(Math.abs(fr-tr)==2 && Math.abs(fc-tc)==2){
 let mr=(fr+tr)/2;
 let mc=(fc+tc)/2;
+
 let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
 
 if(mid.children.length &&
-!mid.children[0].classList.contains(currentPlayer)){
+!mid.children[0].classList.contains(turn)){
+
 mid.innerHTML="";
 cell.appendChild(selected);
-makeKing(selected,tr);
 
-if(canCaptureAgain(selected)){
+if(canEatAgain(selected)){
 selected.classList.add("selected");
 }else endTurn();
 }
 }
 }
 
-function kingMove(cell,fr,fc,tr,tc){
+function canEatAgain(p){
+let r=p.parentElement.dataset.row*1;
+let c=p.parentElement.dataset.col*1;
 
-if(Math.abs(tr-fr)==Math.abs(tc-fc)){
+let enemy=turn=="white"?"black":"white";
 
-let stepR=(tr-fr)/Math.abs(tr-fr);
-let stepC=(tc-fc)/Math.abs(tc-fc);
-
-let r=fr+stepR;
-let c=fc+stepC;
-let enemyPiece=null;
-
-while(r!=tr && c!=tc){
-let mid=document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-
-if(mid.children.length){
-if(mid.children[0].classList.contains(currentPlayer)) return;
-
-if(enemyPiece) return;
-enemyPiece=mid;
-}
-r+=stepR;
-c+=stepC;
-}
-
-if(enemyPiece) enemyPiece.innerHTML="";
-
-cell.appendChild(selected);
-
-if(canCaptureAgain(selected)){
-selected.classList.add("selected");
-}else endTurn();
-}
-}
-
-function canCaptureAgain(piece){
-let r=+piece.parentElement.dataset.row;
-let c=+piece.parentElement.dataset.col;
-let enemy=currentPlayer=="white"?"black":"white";
-
-let dirs=[[1,1],[1,-1],[-1,1],[-1,-1]];
+let dirs=[[2,2],[2,-2],[-2,2],[-2,-2]];
 
 for(let d of dirs){
-let mr=r+d[0];
-let mc=c+d[1];
-let tr=r+d[0]*2;
-let tc=c+d[1]*2;
+
+let mr=r+d[0]/2;
+let mc=c+d[1]/2;
+
+let tr=r+d[0];
+let tc=c+d[1];
 
 let mid=document.querySelector(`[data-row='${mr}'][data-col='${mc}']`);
 let target=document.querySelector(`[data-row='${tr}'][data-col='${tc}']`);
 
-if(mid && target && mid.children.length &&
+if(mid && target &&
+mid.children.length &&
 mid.children[0].classList.contains(enemy) &&
 !target.children.length){
 return true;
 }
 }
+
 return false;
 }
 
 function endTurn(){
 clearSelect();
 selected=null;
-currentPlayer=currentPlayer=="white"?"black":"white";
+turn = turn=="white"?"black":"white";
 }
 
 createBoard();
