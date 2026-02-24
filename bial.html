@@ -1,262 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Moto 3D Game</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    /* Speed control icon and panel */
-    #speedIcon {
-      position: fixed;
-      top: 12px;
-      right: 12px;
-      width: 44px;
-      height: 44px;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 999;
-      font-family: sans-serif;
-      user-select: none;
-    }
-    #speedPanel {
-      position: fixed;
-      top: 64px;
-      right: 12px;
-      width: 220px;
-      padding: 10px;
-      background: rgba(255,255,255,0.95);
-      color: #111;
-      border-radius: 8px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-      z-index: 999;
-      font-family: sans-serif;
-      display: none;
-    }
-    #speedPanel label { display:block; font-size:13px; margin-bottom:6px; }
-    #speedValue { font-weight:700; margin-left:6px; }
-    input[type="range"] { width: 100%; }
-    /* Pause overlay */
-    #pauseOverlay {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 998;
-      pointer-events: none;
-    }
-    #pauseOverlay .box {
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      padding: 18px 28px;
-      border-radius: 8px;
-      font-family: sans-serif;
-      font-size: 20px;
-      pointer-events: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>8-Ball Pool Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0b3d2e;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #ffd700;
+        }
+        .section {
+            background-color: #145a32;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        ul {
+            margin-left: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<div id="speedIcon" title="Speed settings">⚙️</div>
+    <h1>🎱 8-Ball Pool Game</h1>
 
-<div id="speedPanel">
-  <label>Speed: <span id="speedValue">0.60</span></label>
-  <input id="speedSlider" type="range" min="0.20" max="1.50" step="0.01" value="0.60">
-  <div style="display:flex; justify-content:space-between; margin-top:8px;">
-    <button id="speedMinus" style="padding:6px 8px; border-radius:6px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer;">-</button>
-    <button id="speedPlus" style="padding:6px 8px; border-radius:6px; border:1px solid #ccc; background:#f5f5f5; cursor:pointer;">+</button>
-  </div>
-</div>
+    <div class="section">
+        <h2>Essential Equipment</h2>
+        <ul>
+            <li><strong>Pool Table</strong> – 7 ft, 8 ft, or 9 ft.</li>
+            <li><strong>Pool Balls Set</strong>
+                <ul>
+                    <li>15 numbered balls</li>
+                    <li>1 white cue ball</li>
+                </ul>
+            </li>
+            <li><strong>Pool Cues (sticks)</strong> – At least 2.</li>
+            <li><strong>Triangle Rack</strong></li>
+            <li><strong>Chalk</strong></li>
+            <li><strong>Table Brush</strong></li>
+        </ul>
+    </div>
 
-<div id="pauseOverlay"><div class="box">PAUSED</div></div>
+    <div class="section">
+        <h2>🏠 Space Requirements</h2>
+        <ul>
+            <li>Enough space to move the cue stick comfortably.</li>
+            <li>An 8-ft table needs about 13 x 17 feet (4 x 5.2 meters).</li>
+        </ul>
+    </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div class="section">
+        <h2>💡 Recommended Extras</h2>
+        <ul>
+            <li>Overhead pool table light</li>
+            <li>Cue rack (wall or floor)</li>
+            <li>Extra cue tips</li>
+            <li>Table cover</li>
+        </ul>
+    </div>
 
-<script>
-// Scene
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87CEEB);
+    <div class="section">
+        <h2>📜 8-Ball Pool – Basic Rules</h2>
 
-// Camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0, 10, 20);
+        <h3>1️⃣ Setup</h3>
+        <ul>
+            <li>Rack 15 balls in a triangle.</li>
+            <li>8-ball in the center.</li>
+            <li>Solid in one bottom corner, stripe in the other.</li>
+            <li>Cue ball starts behind the head line.</li>
+        </ul>
 
-// Renderer
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+        <h3>2️⃣ The Break</h3>
+        <ul>
+            <li>One player breaks.</li>
+            <li>If a ball goes in, player continues.</li>
+            <li>If no ball goes in, turn passes.</li>
+        </ul>
 
-// Light
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(10, 20, 10);
-scene.add(light);
+        <h3>3️⃣ Choose Your Group</h3>
+        <ul>
+            <li>First legally pocketed ball decides group:</li>
+            <ul>
+                <li>Solids (1–7)</li>
+                <li>Stripes (9–15)</li>
+            </ul>
+        </ul>
 
-// Road
-const roadGeometry = new THREE.PlaneGeometry(20, 200);
-const roadMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-const road = new THREE.Mesh(roadGeometry, roadMaterial);
-road.rotation.x = -Math.PI / 2;
-road.position.z = -90;
-scene.add(road);
+        <h3>4️⃣ Taking Turns</h3>
+        <ul>
+            <li>Must hit your group first.</li>
+            <li>If you pocket your ball, continue.</li>
+            <li>If you miss or foul, turn ends.</li>
+        </ul>
 
-// Moto (player) - replaced cube with textured plane using an image
-let moto = new THREE.Object3D(); // placeholder root so code using moto.position still works
-moto.position.set(0, 0.5, 0);
-scene.add(moto);
+        <h3>5️⃣ Common Fouls</h3>
+        <ul>
+            <li>Hitting opponent’s ball first</li>
+            <li>Not hitting any ball</li>
+            <li>Scratch (cue ball in pocket)</li>
+            <li>No ball hits rail after contact</li>
+        </ul>
+        <p><strong>Penalty:</strong> Opponent gets ball in hand.</p>
 
-// Load motorcycle image as texture and attach to moto
-const textureLoader = new THREE.TextureLoader();
-textureLoader.load('motorcycle.jpg', function(texture){
-  const motoMaterial = new THREE.MeshPhongMaterial({ map: texture, transparent: true });
-  const motoGeometry = new THREE.PlaneGeometry(4, 2); // adjust size if needed
-  const motoMesh = new THREE.Mesh(motoGeometry, motoMaterial);
-  motoMesh.rotation.y = Math.PI; // face forward along -z
-  motoMesh.position.set(0, 0, 0); // centered on the moto root
-  moto.add(motoMesh);
-}, undefined, function(err){
-  // If texture fails to load, keep the placeholder as a simple box so the game still runs
-  const fallbackGeo = new THREE.BoxGeometry(2, 1, 4);
-  const fallbackMat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-  const fallback = new THREE.Mesh(fallbackGeo, fallbackMat);
-  fallback.position.set(0, 0, 0);
-  moto.add(fallback);
-});
-
-// Obstacles
-const obstacles = [];
-function createObstacle(x, z){
-  const obs = new THREE.Mesh(
-    new THREE.BoxGeometry(2, 2, 2),
-    new THREE.MeshPhongMaterial({ color: 0x00ff00 })
-  );
-  obs.position.set(x, 1, z);
-  scene.add(obs);
-  obstacles.push(obs);
-}
-
-// Generate obstacles
-for(let i = -20; i > -180; i -= 15){
-  const x = (Math.random() - 0.5) * 12;
-  createObstacle(x, i);
-}
-
-let keys = {};
-
-// Controls
-document.addEventListener("keydown", (e) => {
-  keys[e.key.toLowerCase()] = true;
-});
-
-document.addEventListener("keyup", (e) => {
-  keys[e.key.toLowerCase()] = false;
-});
-
-// Space toggles pause
-let paused = false;
-const pauseOverlay = document.getElementById('pauseOverlay');
-document.addEventListener("keydown", (e) => {
-  if (e.code === 'Space') {
-    e.preventDefault();
-    paused = !paused;
-    pauseOverlay.style.display = paused ? 'flex' : 'none';
-  }
-});
-
-// Speed and score
-let speed = 0.6;
-let score = 0;
-
-// Speed UI elements
-const speedIcon = document.getElementById('speedIcon');
-const speedPanel = document.getElementById('speedPanel');
-const speedSlider = document.getElementById('speedSlider');
-const speedValueLabel = document.getElementById('speedValue');
-const speedPlus = document.getElementById('speedPlus');
-const speedMinus = document.getElementById('speedMinus');
-
-function updateSpeedUI(val){
-  speedValueLabel.textContent = parseFloat(val).toFixed(2);
-  speedSlider.value = parseFloat(val).toFixed(2);
-}
-
-// Toggle panel
-speedIcon.addEventListener('click', () => {
-  speedPanel.style.display = (speedPanel.style.display === 'none' || speedPanel.style.display === '') ? 'block' : 'none';
-});
-
-// Slider change
-speedSlider.addEventListener('input', (e) => {
-  speed = Math.max(0.2, Math.min(1.5, parseFloat(e.target.value)));
-  updateSpeedUI(speed);
-});
-
-// Plus/minus buttons
-speedPlus.addEventListener('click', () => {
-  speed = Math.min(1.5, parseFloat((speed + 0.05).toFixed(2)));
-  updateSpeedUI(speed);
-});
-speedMinus.addEventListener('click', () => {
-  speed = Math.max(0.2, parseFloat((speed - 0.05).toFixed(2)));
-  updateSpeedUI(speed);
-});
-
-// Initialize UI
-updateSpeedUI(speed);
-
-function animate(){
-  requestAnimationFrame(animate);
-
-  if(!paused){
-    // Moto movement: W = forward (up), A = left, D = right
-    if(keys["a"]) moto.position.x -= 0.3;
-    if(keys["d"]) moto.position.x += 0.3;
-    if(keys["w"]) moto.position.z -= speed;
-
-    // Limit speed (unchanged)
-    speed = Math.max(0.2, Math.min(1.5, speed));
-
-    // Camera follow
-    camera.position.set(moto.position.x, 10, moto.position.z + 20);
-    camera.lookAt(moto.position);
-
-    // Move obstacles forward (relative)
-    for(let obs of obstacles){
-      obs.position.z += speed;
-      if(obs.position.z > moto.position.z + 20){
-        obs.position.z = moto.position.z - 180;
-        obs.position.x = (Math.random() - 0.5) * 12;
-        score += 1;
-      }
-
-      // Collision
-      if(obs.position.distanceTo(moto.position) < 2.5){
-        alert("Game Over! Score: " + score);
-        window.location.reload();
-      }
-    }
-  }
-
-  renderer.render(scene, camera);
-}
-
-animate();
-
-// Handle window resize
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-</script>
+        <h3>6️⃣ Winning</h3>
+        <ul>
+            <li>Pocket all your group balls first.</li>
+            <li>Then legally pocket the 8-ball.</li>
+            <li>Pocket 8-ball early → You lose.</li>
+            <li>Scratch on 8-ball → You lose.</li>
+        </ul>
+    </div>
 
 </body>
 </html>
-     
