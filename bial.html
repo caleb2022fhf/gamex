@@ -1,38 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>8 Ball Pool</title>
-<style>
-body{
-  margin:0;
-  background:#0b3d2e;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  color:white;
-  font-family:arial;
-}
-canvas{
-  background:#146b3a;
-  border:10px solid #3b2a19;
-  border-radius:10px;
-}
-</style>
-</head>
-<body>
-
-<canvas id="game" width="900" height="500"></canvas>
-
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 let balls = [];
 let pockets = [];
+
 let aiming = false;
-let power = 0;
+let holdStart = 0;
+let currentPower = 0;
+let maxPower = 15;
+let mouseX = 0;
+let mouseY = 0;
 
 class Ball{
   constructor(x,y,color){
@@ -67,14 +45,13 @@ function createBalls(){
   balls.push(new Ball(200,250,"white"));
 
   let colors=["yellow","blue","red","purple","orange","green","brown","black"];
-
   let startX=650;
   let startY=250;
-  let row=0;
+  let offset = 0;
 
   colors.forEach((color,i)=>{
-    balls.push(new Ball(startX + row*22, startY - row*11 + (i%row)*22,color));
-    if(i===0||i===2||i===5) row++;
+    balls.push(new Ball(startX + offset, startY + (i*22 - 80), color));
+    if(i===3) offset = 22;
   });
 }
 
@@ -94,26 +71,56 @@ function drawPockets(){
   });
 }
 
-canvas.addEventListener("mousedown",()=> aiming=true);
-canvas.addEventListener("mouseup",shoot);
-
 canvas.addEventListener("mousemove",(e)=>{
-  if(aiming){
-    power = 5;
-    let rect = canvas.getBoundingClientRect();
-    let mouseX = e.clientX - rect.left;
-    let mouseY = e.clientY - rect.top;
-
-    let cueBall = balls[0];
-
-    let angle = Math.atan2(mouseY-cueBall.y, mouseX-cueBall.x);
-    cueBall.dx = Math.cos(angle)*power;
-    cueBall.dy = Math.sin(angle)*power;
-  }
+  let rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
 });
 
-function shoot(){
-  aiming=false;
+canvas.addEventListener("mousedown",()=>{
+  aiming = true;
+  holdStart = Date.now();
+});
+
+canvas.addEventListener("mouseup",()=>{
+  if(!aiming) return;
+
+  let holdTime = Date.now() - holdStart;
+  currentPower = Math.min(holdTime / 100, maxPower);
+
+  let cueBall = balls[0];
+  let angle = Math.atan2(mouseY-cueBall.y, mouseX-cueBall.x);
+
+  cueBall.dx = Math.cos(angle) * currentPower;
+  cueBall.dy = Math.sin(angle) * currentPower;
+
+  aiming = false;
+  currentPower = 0;
+});
+
+function drawCue(){
+  if(!aiming) return;
+
+  let cueBall = balls[0];
+  let angle = Math.atan2(mouseY-cueBall.y, mouseX-cueBall.x);
+
+  let pullBack = currentPower * 5;
+
+  let startX = cueBall.x - Math.cos(angle) * (20 + pullBack);
+  let startY = cueBall.y - Math.sin(angle) * (20 + pullBack);
+
+  let endX = cueBall.x - Math.cos(angle) * 120;
+  let endY = cueBall.y - Math.sin(angle) * 120;
+
+  ctx.beginPath();
+  ctx.moveTo(startX,startY);
+  ctx.lineTo(endX,endY);
+  ctx.strokeStyle="white";
+  ctx.lineWidth=4;
+  ctx.stroke();
+
+  let holdTime = Date.now() - holdStart;
+  currentPower = Math.min(holdTime / 100, maxPower);
 }
 
 function detectPocket(){
@@ -143,6 +150,7 @@ function gameLoop(){
     ball.draw();
   });
 
+  drawCue();
   detectPocket();
 
   requestAnimationFrame(gameLoop);
@@ -152,6 +160,3 @@ createBalls();
 createPockets();
 gameLoop();
 </script>
-
-</body>
-</html>
