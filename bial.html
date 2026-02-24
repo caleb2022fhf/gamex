@@ -1,279 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-Ball Pool Game</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #2c3e50;
-            font-family: Arial, sans-serif;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        #gameContainer {
-            display: flex;
-            gap: 20px;
-        }
-        #gameCanvas {
-            border: 10px solid #8B4513;
-            border-radius: 10px;
-            background-color: #228B22;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            cursor: crosshair;
-        }
-        #info {
-            width: 300px;
-            max-height: 500px;
-            overflow-y: auto;
-            background-color: #34495e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        #info h2 {
-            color: #f39c12;
-            border-bottom: 2px solid #f39c12;
-            padding-bottom: 10px;
-        }
-        #info h3 {
-            color: #3498db;
-        }
-        #info ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        #info li {
-            margin-bottom: 5px;
-        }
-        #status {
-            background-color: #27ae60;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-        #controls {
-            text-align: center;
-            margin-top: 20px;
-        }
-        button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #c0392b;
-        }
-        .emoji {
-            font-size: 1.2em;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>8-Ball Pool</title>
+<style>
+    body {
+        margin: 0;
+        background: #0b3d2e;
+        font-family: Arial, sans-serif;
+        color: white;
+        text-align: center;
+    }
+
+    #gameContainer {
+        position: relative;
+        width: 900px;
+        margin: 20px auto;
+    }
+
+    canvas {
+        background: #1e8449;
+        border: 15px solid #5d4037;
+        border-radius: 10px;
+    }
+
+    #instructions {
+        margin-top: 15px;
+        background: #145a32;
+        padding: 10px;
+        border-radius: 8px;
+    }
+</style>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
-        <div id="info">
-            <div id="status">Click and drag on the cue ball to aim and shoot! 🎱</div>
-            <h2>Essential Equipment 🏠</h2>
-            <ol>
-                <li><strong>Pool Table</strong> – Like the one in the image (most common sizes: 7 ft, 8 ft, or 9 ft).</li>
-                <li><strong>Pool Balls Set</strong> – Standard 16-ball set: 15 numbered balls + 1 white cue ball</li>
-                <li><strong>Pool Cues (sticks)</strong> – Usually at least 2.</li>
-                <li><strong>Triangle Rack</strong> – To arrange the balls at the start.</li>
-                <li><strong>Chalk</strong> – Helps prevent the cue tip from slipping.</li>
-                <li><strong>Table Brush</strong> – To clean the felt surface.</li>
-            </ol>
-            <h3>Space Requirements</h3>
-            <p>You need enough room around the table to move the cue stick comfortably.</p>
-            <p><strong>For example:</strong> An 8-ft table typically needs about 13 x 17 feet (4 x 5.2 meters) of room.</p>
-            <h3>Recommended Extras 💡</h3>
-            <ul>
-                <li>Overhead pool table light</li>
-                <li>Cue rack (wall or floor)</li>
-                <li>Extra cue tips</li>
-                <li>Table cover (to protect from dust)</li>
-            </ul>
-            <h2>8-Ball Pool – Basic Rules</h2>
-            <ol>
-                <li><strong>Setup</strong> 🏃<br>
-                    Rack the 15 balls in a triangle. The 8-ball goes in the center. A solid ball in one bottom corner, a stripe in the other. The white ball (cue ball) starts behind the head line.
-                </li>
-                <li><strong>The Break</strong> 💥<br>
-                    One player breaks (hits the racked balls first). If a ball goes in, that player continues. If no ball goes in, the turn passes.
-                </li>
-                <li><strong>Choose Your Group</strong> 🎯<br>
-                    After the break: The first legally pocketed ball decides your group: Solids (1–7) or Stripes (9–15). The other player gets the remaining group.
-                </li>
-                <li><strong>Taking Turns</strong> 🔄<br>
-                    On your turn: You must hit your group first. If you pocket one of your balls, you continue. If you miss or commit a foul, your turn ends.
-                </li>
-                <li><strong>Fouls (Common Ones)</strong> ❌<br>
-                    Hitting opponent’s ball first / Not hitting any ball / Cue ball goes into a pocket (scratch) / No ball hits a rail after contact<br>
-                    If you foul → opponent gets ball in hand (they can place the cue ball anywhere).
-                </li>
-                <li><strong>Winning the Game</strong> 🏆<br>
-                    After pocketing all your group balls, you must legally pocket the 8-ball. If you pocket the 8-ball too early → you lose. If you scratch while pocketing the 8-ball → you lose.
-                </li>
-            </ol>
-            <div id="controls">
-                <button onclick="resetGame()">New Game</button>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const statusDiv = document.getElementById('status');
+<h1>🎱 8-Ball Pool Game</h1>
 
-        // Game constants
-        const TABLE_WIDTH = 760;
-        const TABLE_HEIGHT = 380;
-        const POCKET_RADIUS = 20;
-        const BALL_RADIUS = 15;
-        const FRICTION = 0.985;
-        const MIN_VELOCITY = 0.1;
-        const MAX_POWER = 0.03;
+<div id="gameContainer">
+    <canvas id="table" width="900" height="450"></canvas>
+</div>
 
-        // Pockets positions (top-left, top-right, bottom-left, bottom-right, middle sides)
-        const pockets = [
-            {x: 30, y: 30},
-            {x: TABLE_WIDTH - 30, y: 30},
-            {x: TABLE_WIDTH - 30, y: TABLE_HEIGHT - 30},
-            {x: 30, y: TABLE_HEIGHT - 30},
-            {x: TABLE_WIDTH / 2, y: 10},
-            {x: TABLE_WIDTH / 2, y: TABLE_HEIGHT - 10}
-        ];
+<div id="instructions">
+    <h3>Game Instructions</h3>
+    <p>1️⃣ Click anywhere to shoot the cue ball.</p>
+    <p>2️⃣ Pocket a ball to continue your turn.</p>
+    <p>3️⃣ First pocketed ball decides Solids or Stripes.</p>
+    <p>4️⃣ Pocket all your balls, then pocket the 8-ball to win.</p>
+</div>
 
-        // Ball class
-        class Ball {
-            constructor(x, y, number, color, type = 'object') {
-                this.x = x;
-                this.y = y;
-                this.vx = 0;
-                this.vy = 0;
-                this.number = number;
-                this.color = color;
-                this.type = type; // 'cue', 'solid', 'stripe', 'eight'
-                this.pocketed = false;
-                this.group = null; // 'solids' or 'stripes' assigned later
-            }
+<script>
+const canvas = document.getElementById("table");
+const ctx = canvas.getContext("2d");
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vx *= FRICTION;
-                this.vy *= FRICTION;
+const pockets = [
+    {x:0,y:0}, {x:450,y:0}, {x:900,y:0},
+    {x:0,y:450}, {x:450,y:450}, {x:900,y:450}
+];
 
-                // Wall bounce
-                if (this.x - BALL_RADIUS < 0 || this.x + BALL_RADIUS > TABLE_WIDTH) this.vx *= -1;
-                if (this.y - BALL_RADIUS < 0 || this.y + BALL_RADIUS > TABLE_HEIGHT) this.vy *= -1;
+let balls = [];
 
-                // Pocket check
-                if (!this.pocketed) {
-                    for (let pocket of pockets) {
-                        const dx = this.x - pocket.x;
-                        const dy = this.y - pocket.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < POCKET_RADIUS) {
-                            this.pocketed = true;
-                            if (this.type === 'cue') {
-                                // Scratch - reset cue ball
-                                this.x = 200;
-                                this.y = TABLE_HEIGHT / 2;
-                                this.vx = 0;
-                                this.vy = 0;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
+// Draw table pockets
+function drawPockets() {
+    ctx.fillStyle = "black";
+    pockets.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 25, 0, Math.PI*2);
+        ctx.fill();
+    });
+}
 
-            draw() {
-                if (this.pocketed && this.type !== 'cue') return;
+// Create ball
+function createBall(x,y,color,number=null) {
+    return {x,y,radius:12,color,number};
+}
 
-                // Ball shadow
-                ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                ctx.shadowBlur = 5;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
+// Setup balls (triangle rack)
+function setupBalls() {
+    let startX = 650;
+    let startY = 225;
+    let row = 5;
+    let colors = ["yellow","blue","red","purple","orange",
+                  "green","maroon","black",
+                  "yellow","blue","red","purple",
+                  "orange","green","maroon"];
 
-                // Ball
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, BALL_RADIUS, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+    let index = 0;
 
-                // Highlight
-                const gradient = ctx.createRadialGradient(this.x - 5, this.y - 5, 0, this.x, this.y, BALL_RADIUS);
-                gradient.addColorStop(0, 'rgba(255,255,255,0.6)');
-                gradient.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = gradient;
-                ctx.fill();
-
-                // Number
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(this.number, this.x, this.y);
-
-                if (this.type === 'stripe') {
-                    // Stripe ring
-                    ctx.strokeStyle = this.color;
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, BALL_RADIUS * 0.7, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            }
+    for(let i=0;i<row;i++){
+        for(let j=0;j<=i;j++){
+            balls.push(createBall(
+                startX + i*25,
+                startY - (i*12) + j*25,
+                colors[index],
+                index+1
+            ));
+            index++;
         }
+    }
 
-        // Game state
-        let balls = [];
-        let cueBall = null;
-        let mouseX = 0;
-        let mouseY = 0;
-        let isAiming = false;
-        let playerGroup = null; // 'solids' or 'stripes'
-        let gameState = 'break'; // 'break', 'player_solids', 'player_stripes', 'win'
-        let ballsLeft = 15;
+    // Cue ball
+    balls.push(createBall(200,225,"white",0));
+}
 
-        // Initialize balls rack
-        function initBalls() {
-            balls = [];
-            // Rack positions (simplified triangle)
-            const rackX = TABLE_WIDTH - 150;
-            const rackY = TABLE_HEIGHT / 2;
-            const positions = [
-                // Row 1
-                {x: rackX, y: rackY},
-                // Row 2
-                {x: rackX - 2 * BALL_RADIUS * 0.866, y: rackY - BALL_RADIUS},
-                {x: rackX + 2 * BALL_RADIUS * 0.866, y: rackY - BALL_RADIUS},
-                // Row 3
-                {x: rackX - 4 * BALL_RADIUS * 0.866, y: rackY - 2 * BALL_RADIUS},
-                {x: rackX, y: rackY - 2 * BALL_RADIUS},
-                {x: rackX + 4 * BALL_RADIUS * 0.866, y: rackY - 2 * BALL_RADIUS},
-                // Row 4
-                {x: rackX - 6 * BALL_RADIUS * 0.866, y: rackY - 3 * BALL_RADIUS},
-                {x: rackX - 2 * BALL_RADIUS * 0.866, y: rackY - 3 * BALL_RADIUS},
-                {x: rackX + 2 * BALL_RADIUS * 0.866, y: rackY - 3 * BALL_RADIUS},
-                {x: rackX + 6 * BALL_RADIUS * 0.866, y: rackY - 3 * BALL_RADIUS},
-                // Row 5
-                {x
+// Draw balls
+function drawBalls() {
+    balls.forEach(ball=>{
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+    });
+}
+
+// Main draw
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawPockets();
+    drawBalls();
+}
+
+setupBalls();
+draw();
+</script>
+
+</body>
+</html>
